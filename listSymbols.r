@@ -1,62 +1,106 @@
-# 
+# --------------------------------------------------------------------------------------------
+# Example function
 
 g <- function(s, n) {
-  x <- y <- 5
+  x <- z <- 5
   d
   for (j in 1:n) {
     print(s)
   }
+  ggplot() + geom_point()
   for( i in 1:2) {} 
+  print(y)
+  print(zz)
 }
 
+e <- new.env(parent = globalenv())
+e$y <- "Hello from the new environment"
+e$zz <- "Hello from the new environment2"
+environment(g) <- e
+e2 <- new.env(parent = globalenv())
+e2$x <- "Hello from the new environment"
+e2$x1 <- "Hello from the new environment222"
+e2$zz <- "Hello from the new environment2"
+environment(g) <- e2
+
+# --------------------------------------------------------------------------------------------
+# listSymbols function implementation
 
 listSymbols <- function(func) {
+  # getting all the symbols from the function body
   symbols <- all.names(print(body(func)))
   allSymbols <- unique(symbols)
   
+  # searching for loaded packages and their functions
   pkgs <- search()
   pkgs <- pkgs[grep("package:",pkgs)]
-  loadedPkgs <- unlist(sapply(pkgs,lsf.str))
+  loadedFunctions <- unlist(sapply(pkgs,lsf.str))
   
-  symbolsInLoadedPkgs <- allSymbols[allSymbols %in% loadedPkgs]
-  otherSymbols <- allSymbols[!allSymbols %in% loadedPkgs]
+  # linking symbols from the function body to those in loaded packages
+  symbolsInloadedFunctions <- allSymbols[allSymbols %in% loadedFunctions]
   
-  tmp <- data.frame(sapply(symbolsInLoadedPkgs, function(x) loadedPkgs[loadedPkgs==x]))
+  tmp <- data.frame(sapply(symbolsInloadedFunctions, function(x) loadedFunctions[loadedFunctions==x]))
   tmp$definition <- rownames(tmp)
   rownames(tmp) <- 1:nrow(tmp)
-  colnames(tmp) <- c("symbol","definition")
+  colnames(tmp) <- c("Symbol","Definition")
   
-  tmp$definition <- gsub(".*package:(.+?)\\d+","\\1",tmp$definition)
+  tmp$Definition <- gsub(".*package:(.+?)\\d+","\\1",tmp$Definition)
   
+  # searching for arguments
   if(length(formalArgs(func)) > 0) {
-    tmp2 <- data.frame(symbol = formalArgs(func), definition = "arg")
+    tmp2 <- data.frame(Symbol = formalArgs(func), Definition = "arg")
     tmp <- rbind(tmp,tmp2)
   }
   
+  # searching for locally defined variables
   if("<-" %in% symbols) {
     locallyDefinedSymbols <- symbols[which(symbols == "<-")+1]
-    if(sum(locallyDefinedSymbols %in% tmp$symbol) > 0) {
-      locallyDefinedSymbols <- locallyDefinedSymbols[-which(locallyDefinedSymbols %in% tmp$symbol)]
+    if(sum(locallyDefinedSymbols %in% tmp$Symbol) > 0) {
+      locallyDefinedSymbols <- locallyDefinedSymbols[-which(locallyDefinedSymbols %in% tmp$Symbol)]
     }
-    tmp3 <- data.frame(symbol = locallyDefinedSymbols, definition = "locally defined")
+    tmp3 <- data.frame(Symbol = locallyDefinedSymbols, Definition = "locally defined")
     tmp <- rbind(tmp,tmp3)
   }
   
+  # searching for temporary symbols
   if("for" %in% symbols) {
     tempSymbols <- symbols[which(symbols == "for")+1]
-    if(sum(tempSymbols %in% tmp$symbol) > 0) {
-      tempSymbols <- tempSymbols[-which(tempSymbols %in% tmp$symbol)]
+    if(sum(tempSymbols %in% tmp$Symbol) > 0) {
+      tempSymbols <- tempSymbols[-which(tempSymbols %in% tmp$Symbol)]
     }
-    tmp4 <- data.frame(symbol = tempSymbols, definition = "temp symbol")
+    tmp4 <- data.frame(Symbol = tempSymbols, Definition = "temp symbol")
     tmp <- rbind(tmp,tmp4)
   }
-  
-  if(sum(!allSymbols %in% tmp$symbol) > 0) {
-    tmp5 <- data.frame(symbol = allSymbols[!allSymbols %in% tmp$symbol], definition = "can't find definition")
-    tmp <- rbind(tmp, tmp5)
+
+  # searching for environment variables and others
+  if(sum(!allSymbols %in% tmp$Symbol) > 0) {
+    envirs <- ls(envir = .GlobalEnv)[sapply(ls(envir = .GlobalEnv), function(x) is.environment(get(x)))]
+    envirs <- lapply(envirs, function(x) get(x))
+    
+    if(length(envirs)>0) {
+      getEnvs <- function(s) Filter(function(e) s %in% ls(e), envirs) |>
+        sapply(capture.output) |>
+        toString()
+      
+      if(sum(sapply(allSymbols[!allSymbols %in% tmp$Symbol], getEnvs) != "") > 0) {
+        tmp5 <- data.frame(Symbol = allSymbols[!allSymbols %in% tmp$Symbol], Definition = sapply(allSymbols[!allSymbols %in% tmp$Symbol], getEnvs))
+        tmp5$Definition <- ifelse(tmp5$Definition=="","can't find definition",tmp5$Definition) 
+        tmp <- rbind(tmp, tmp5)
+        rownames(tmp) <- 1:nrow(tmp)
+      }
+      else {
+        tmp5 <- data.frame(Symbol = allSymbols[!allSymbols %in% tmp$Symbol], Definition = "can't find definition")
+        tmp <- rbind(tmp, tmp5)
+      }
+    }
+    else {
+    tmp6 <- data.frame(Symbol = allSymbols[!allSymbols %in% tmp$Symbol], Definition = "can't find definition")
+    tmp <- rbind(tmp, tmp6)
+    }
   }
   shell("cls")
   return(tmp)
 }
 
 listSymbols(g)
+
