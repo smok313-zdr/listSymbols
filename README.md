@@ -18,7 +18,7 @@ Since the function uses the basic pipe operator, it should be used with an R ver
 
 Here are some simple examples of using the `listSymbols` function.
 
-(Note: I already had the `ggplot2` package pre-loaded.)
+(Note: The `ggplot2` package has already been pre-loaded.)
 
 ```r
 ## function to check
@@ -49,5 +49,68 @@ listSymbols(g)
 12          z       locally defined
 13          j           temp symbol
 14          i           temp symbol
-15          d can''t find definition
+15          d can't find definition
+```
+
+Here's an example of applying `listSymbols` to a built-in R function `plot.default`.
+
+```r
+listSymbols(plot.default)
+        Symbol      Definition
+1            {            base
+2           <-            base
+3     function            base
+4         Axis        graphics
+5          box        graphics
+6  plot.window        graphics
+7        title        graphics
+8           if            base
+9            !            base
+10     missing            base
+11    deparse1            base
+12  substitute            base
+13   xy.coords       grDevices
+14         log            base
+15     is.null            base
+16        xlab          ggplot
+17           $            base
+18        ylab          ggplot
+19        xlim          ggplot
+20       range            base
+21           [            base
+22   is.finite            base
+23        ylim          ggplot
+24    dev.hold       grDevices
+25     on.exit            base
+26   dev.flush       grDevices
+27    plot.new        graphics
+28     plot.xy        graphics
+29         sub            base
+30   invisible            base
+31           x             arg
+32           y             arg
+33        type             arg
+34        xlim             arg
+35        ylim             arg
+36         log             arg
+37        main             arg
+38         sub             arg
+39        xlab             arg
+40        ylab             arg
+41         ann             arg
+42        axes             arg
+43  frame.plot             arg
+44 panel.first             arg
+45  panel.last             arg
+46         asp             arg
+47   xgap.axis             arg
+48   ygap.axis             arg
+49         ...             arg
+50   localAxis locally defined
+51    localBox locally defined
+52 localWindow locally defined
+53  localTitle locally defined
+54      xlabel locally defined
+55      ylabel locally defined
+56          xy locally defined
 ```
