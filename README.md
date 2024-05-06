@@ -16,7 +16,9 @@ Since the function uses the basic pipe operator, it should be used with an R ver
 
 ### Usage
 
-Here are some simple examples of using the listSymbols function.
+Here are some simple examples of using the `listSymbols` function.
+
+(Note: I already had the `ggplot2` package pre-loaded.)
 
 ```r
 ## function to check
@@ -47,5 +49,5 @@ listSymbols(g)
 12          z       locally defined
 13          j           temp symbol
 14          i           temp symbol
-15          d can't find definition
+15          d can''t find definition
 ```
