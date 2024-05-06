@@ -13,3 +13,39 @@ listSymbols works with both self-implemented functions and those already built i
 The function has been implemented using 100% basic R-packages, and does not require any additional packages. 
 However, in order for it to detect correctly the symbols of other functions that come from external packages like `ggplot2`, you need to load the `ggplot2` library into your environment beforehand. 
 Since the function uses the basic pipe operator, it should be used with an R version no older than 4.1.0.
+
+### Usage
+
+Here are some simple examples of using the listSymbols function.
+
+```r
+## function to check
+g <- function(s, n) {
+  x <- z <- 5
+  d
+  for (j in 1:n) {
+    print(s)
+  }
+  ggplot() + geom_point()
+  for( i in 1:2) {} 
+}
+
+## output
+listSymbols(g)
+       Symbol            Definition
+1           {                  base
+2          <-                  base
+3         for                  base
+4           :                  base
+5       print                  base
+6           +                  base
+7      ggplot                ggplot
+8  geom_point                ggplot
+9           s                   arg
+10          n                   arg
+11          x       locally defined
+12          z       locally defined
+13          j           temp symbol
+14          i           temp symbol
+15          d can't find definition
+```
